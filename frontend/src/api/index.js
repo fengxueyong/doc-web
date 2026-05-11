@@ -8,6 +8,10 @@ export function fetchTree() {
   return api.get('/tree').then(res => res.data)
 }
 
+export function fetchCategorizedTree() {
+  return api.get('/tree/categorized').then(res => res.data)
+}
+
 export function fetchContent(path) {
   return api.get('/content', { params: { path } }).then(res => res.data)
 }

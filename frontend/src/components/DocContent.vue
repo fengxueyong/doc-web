@@ -16,7 +16,7 @@
           <path d="M24 28h32v4H24zm0 10h28v4H24zm0 10h24v4H24z" fill="#1e6df2" opacity="0.3" transform="translate(0, 2)" />
         </svg>
       </div>
-      <h2>欢迎使用 DocWeb</h2>
+      <h2>欢迎使用 知墨</h2>
       <p>请从左侧文档目录中选择一篇文档开始阅读</p>
     </div>
     <div v-else class="markdown-body" v-html="renderedContent"></div>
@@ -92,11 +92,12 @@ watch(() => props.docPath, (path) => {
 <style scoped>
 .doc-content {
   flex: 1;
-  min-height: calc(100vh - 60px);
-  padding: 32px 48px 80px;
-  max-width: 900px;
+  min-height: calc(100vh - 64px);
+  padding: 40px 56px 80px;
+  max-width: 920px;
   margin: 0 auto;
   width: 100%;
+  background: #fff;
 }
 
 .content-status {

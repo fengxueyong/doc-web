@@ -69,6 +69,57 @@ def get_tree():
     return {"tree": tree}
 
 
+@router.get("/tree/categorized")
+def get_categorized_tree():
+    """Get the document tree organized by categories using keyword matching."""
+    docs_dir = Path(settings.DOCS_DIR)
+    if not docs_dir.exists():
+        return {"categories": []}
+
+    flat_tree = build_tree(docs_dir)
+
+    # Flatten to get all file entries with name (with .md) and path
+    all_files = []
+    def collect(items):
+        for item in items:
+            if item["type"] == "file":
+                all_files.append({"name": item["name"], "path": item["path"]})
+            elif item.get("children"):
+                collect(item["children"])
+    collect(flat_tree)
+
+    categories = []
+    assigned = set()
+
+    for cat_cfg in settings.CATEGORIES:
+        matched = []
+        for f in all_files:
+            if f["path"] in assigned:
+                continue
+            name_lower = f["name"].lower()
+            for kw in cat_cfg.get("keywords", []):
+                if kw.lower() in name_lower:
+                    matched.append(f)
+                    assigned.add(f["path"])
+                    break
+        categories.append({
+            "name": cat_cfg["name"],
+            "icon": cat_cfg["icon"],
+            "children": matched,
+        })
+
+    # Uncategorized remainder
+    remainder = [f for f in all_files if f["path"] not in assigned]
+    if remainder:
+        categories.append({
+            "name": "其他",
+            "icon": "fa-solid fa-folder",
+            "children": remainder,
+        })
+
+    return {"categories": categories}
+
+
 @router.get("/search")
 def search_docs(q: str = ""):
     """Search documents by name."""
