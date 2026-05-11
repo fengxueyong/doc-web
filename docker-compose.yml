@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+    image: doc-web-backend:1.0.0
+    container_name: doc-web-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist cloned docs so we don't re-clone on restart
+      - doc-data:/data/docs
+    environment:
+      - GITHUB_REPO_URL=https://github.com/fengxueyong/study-diary.git
+      - DOCS_PATH_IN_REPO=typora-notes
+      - DOCS_DIR=/data/docs
+      - TZ=Asia/Shanghai
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    image: doc-web-frontend:1.0.0
+    container_name: doc-web-frontend
+    ports:
+      - "8080:80"
+    environment:
+      - TZ=Asia/Shanghai
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  doc-data:
