@@ -12,6 +12,17 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(na
 logger = logging.getLogger(__name__)
 
 
+def resolve_docs_subdir():
+    """If DOCS_PATH_IN_REPO is set, point DOCS_DIR to the subdirectory."""
+    if not settings.DOCS_PATH_IN_REPO:
+        return
+    docs_dir = Path(settings.DOCS_DIR)
+    sub = docs_dir / settings.DOCS_PATH_IN_REPO
+    if sub.exists() and sub.is_dir():
+        settings.DOCS_DIR = str(sub.resolve())
+        logger.info(f"DOCS_DIR resolved to subdirectory: {settings.DOCS_DIR}")
+
+
 def clone_or_update_repo():
     """Clone the GitHub repo with documents on first startup."""
     import git
@@ -21,6 +32,7 @@ def clone_or_update_repo():
 
     if docs_dir.exists():
         logger.info(f"Docs directory already exists at {docs_dir}")
+        resolve_docs_subdir()
         return
 
     logger.info(f"Cloning repository {repo_url}...")
@@ -28,11 +40,7 @@ def clone_or_update_repo():
 
     try:
         repo = git.Repo.clone_from(repo_url, str(docs_dir), depth=1)
-        # If docs are in a subdirectory, move them up
-        if settings.DOCS_PATH_IN_REPO:
-            sub = docs_dir / settings.DOCS_PATH_IN_REPO
-            if sub.exists() and sub.is_dir():
-                logger.info(f"Documents found in subdirectory: {settings.DOCS_PATH_IN_REPO}")
+        resolve_docs_subdir()
         logger.info("Repository cloned successfully")
     except Exception as e:
         logger.error(f"Failed to clone repository: {e}")

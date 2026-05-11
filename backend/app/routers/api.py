@@ -37,9 +37,9 @@ def build_tree(dir_path: Path, rel_path: str = "") -> list:
                 items.append(item)
         elif entry.suffix.lower() == ".md":
             item["type"] = "file"
-            # Store path without extension for cleaner URLs
-            stem = str(entry.relative_to(dir_path.parent))[:-3]
-            item["path"] = stem.replace("\\", "/")
+            # Store path without .md extension, relative to DOCS_DIR
+            file_path = f"{rel_path}/{entry.stem}" if rel_path else entry.stem
+            item["path"] = file_path
             items.append(item)
 
     return items
